@@ -28,7 +28,7 @@ const AppLayout = () => {
       navigate("/auth");
     }
   }, [hasCheckedAuth, user, navigate]);
-
+console.log("hasCheckedAuth ",hasCheckedAuth ,user)
   // Show loading spinner while checking auth
   if (isLoading || !hasCheckedAuth) {
     return (
