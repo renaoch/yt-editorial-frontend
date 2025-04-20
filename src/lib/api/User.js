@@ -24,6 +24,7 @@ export const checkUser = async () => {
 // Log the user in via Google OAuth
 export const loginWithGoogle = (role) => {
   const redirectURL = `https://yt-editorial-backend.onrender.com/auth/google/${role}`;
+  console.log("role: ",role)
   window.location.href = redirectURL;
 };
 
