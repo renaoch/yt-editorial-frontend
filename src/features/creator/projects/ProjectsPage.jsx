@@ -6,7 +6,7 @@ import ProjectList from "./ProjectList";
 import ProjectDetailDrawer from "./ProjectDetailDrawer";
 import useSelectedUserStore from "../../../store/useSelectedUserStore"; // Importing the store
 import { getTasks } from "../../../lib/api/CreateTask";
-import { Spinner } from "../../../components/ui/spinner"; // Assuming you have a Spinner component
+import { Spinner } from "../../../components/ui/Spinner"; // Assuming you have a Spinner component
 
 export default function ProjectsPage() {
   const [showCreate, setShowCreate] = useState(false);
