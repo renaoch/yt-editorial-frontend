@@ -18,9 +18,9 @@ const AppLayout = () => {
   const { checkUserStatus, user, isLoading, hasCheckedAuth } = useAuthStore();
 
   // Check user auth status when AppLayout loads
-  useEffect(() => {
-    checkUserStatus();
-  }, [checkUserStatus]);
+  // useEffect(() => {
+  //   checkUserStatus();
+  // }, [checkUserStatus]);
 
   // If not authenticated, redirect to /auth
   useEffect(() => {
