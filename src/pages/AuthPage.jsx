@@ -30,12 +30,12 @@ import React from "react";
 const AuthPage = () => {
   const handleLoginAsCreator = () => {
     // Redirect to Google OAuth for creator role
-    window.location.href = "http://localhost:8080/auth/google/creator";
+    window.location.href = "https://yt-editorial-backend.onrender.com/auth/google/creator";
   };
 
   const handleLoginAsEditor = () => {
     // Redirect to Google OAuth for editor role
-    window.location.href = "http://localhost:8080/auth/google/editor";
+    window.location.href = "https://yt-editorial-backend.onrender.com/auth/google/editor";
   };
 
   return (
