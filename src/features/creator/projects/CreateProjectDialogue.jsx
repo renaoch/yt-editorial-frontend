@@ -17,35 +17,33 @@ import {
   PopoverTrigger,
 } from "../../../components/ui/popover";
 import { Calendar } from "../../../components/ui/calendar";
-import { createTask } from "../../../lib/api/CreateTask"; 
-import { toast } from "sonner"; // For notifications
-import useSelectedUserStore from "../../../store/useSelectedUserStore"; 
-
+import { createTask } from "../../../lib/api/CreateTask";
+import { toast } from "sonner";
+import useSelectedUserStore from "../../../store/useSelectedUserStore";
 
 export default function CreateProjectDialog({ open, onOpenChange, onProjectCreated }) {
+  const [name, setName] = useState("");
+  const [deadline, setDeadline] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const { selectedUser } = useSelectedUserStore();
 
-  const [name, setName] = useState(""); // project name
-  const [deadline, setDeadline] = useState(null); // due date
-  const [loading, setLoading] = useState(false); // for spinner
-  const [popoverOpen, setPopoverOpen] = useState(false); 
-  // Get selected user (editor)
-  const { selectedUser } = useSelectedUserStore.getState();
+  const handleDateSelect = (date) => {
+    setDeadline(date);
+    setPopoverOpen(false);
+  };
 
   const handleCreate = async () => {
     if (!name) {
       toast.error("Project name is required");
       return;
     }
-  const handleDateSelect = (date) => {
-    setDeadline(date);
-    setPopoverOpen(false); 
-  };
 
     if (!selectedUser) {
       toast.error("Please select an editor");
       return;
     }
-  
+
     setLoading(true);
     try {
       const newTask = await createTask({
@@ -54,9 +52,9 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
         editorId: selectedUser._id,
         deadline,
       });
-  
-      toast.success(" Project created!");
-      onProjectCreated?.(newTask); 
+
+      toast.success("Project created!");
+      onProjectCreated?.(newTask);
       onOpenChange(false);
       setName("");
       setDeadline(null);
@@ -66,7 +64,7 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
       setLoading(false);
     }
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -75,7 +73,6 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Project Name */}
           <div>
             <Label>Project Name</Label>
             <Input
@@ -86,10 +83,9 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
             />
           </div>
 
-          {/* Deadline Picker */}
           <div>
             <Label className="mb-2">Deadline</Label>
-            <Popover>
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -103,8 +99,7 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
                 <Calendar
                   mode="single"
                   selected={deadline}
-                  onSelect={setDeadline}
-                  onSelect={handleDateSelect} 
+                  onSelect={handleDateSelect}
                   initialFocus
                 />
               </PopoverContent>
