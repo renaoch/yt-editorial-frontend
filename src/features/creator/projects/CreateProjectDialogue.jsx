@@ -22,7 +22,8 @@ import { toast } from "sonner"; // For notifications
 import useSelectedUserStore from "../../../store/useSelectedUserStore"; 
 
 
-export default function CreateProjectDialog({ open, onOpenChange }) {
+export default function CreateProjectDialog({ open, onOpenChange, onProjectCreated }) {
+
   const [name, setName] = useState(""); // project name
   const [deadline, setDeadline] = useState(null); // due date
   const [loading, setLoading] = useState(false); // for spinner
@@ -32,38 +33,36 @@ export default function CreateProjectDialog({ open, onOpenChange }) {
 
   const handleCreate = async () => {
     if (!name) {
-      // validate input
       toast.error("Project name is required");
       return;
     }
-
+  
     if (!selectedUser) {
-      // ensure user selected
       toast.error("Please select an editor");
       return;
     }
-
-    setLoading(true); // show spinner
+  
+    setLoading(true);
     try {
       const newTask = await createTask({
         title: name,
-        description: "", // Optional
-        editorId: selectedUser._id, // editor ID
+        description: "",
+        editorId: selectedUser._id,
         deadline,
       });
-
+  
       toast.success("✅ Project created!");
-      console.log("New Task:", newTask);
-      onOpenChange(false); // close dialog
-      setName(""); // reset
-      setDeadline(null); // reset
+      onProjectCreated?.(newTask); 
+      onOpenChange(false);
+      setName("");
+      setDeadline(null);
     } catch (err) {
       toast.error(err.message || "Failed to create project");
     } finally {
-      setLoading(false); // hide spinner
+      setLoading(false);
     }
   };
-
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>

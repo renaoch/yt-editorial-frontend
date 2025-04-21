@@ -1,5 +1,5 @@
 import * as React from "react";
-import { UploadCloud, ChevronDown } from "lucide-react";
+import { UploadCloud, ChevronDown, Menu, X } from "lucide-react"; // Import X for close button
 import { NavMain } from "./nav-main/NavMain";
 import { NavProjects } from "./nav-projects/NavProjects";
 import { NavSecondary } from "./nav-secondary/NavSecondary";
@@ -28,7 +28,7 @@ import { fetchNotifications } from "../../lib/api/Notification"; // Import notif
 
 export function AppSidebar({ onSelect }) {
   const { user, isLoading, error } = useAuthStore();
-
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const {
     editors,
     assignedEditors,
@@ -128,88 +128,131 @@ export function AppSidebar({ onSelect }) {
     if (onSelect) onSelect(section);
   };
 
-  return (
-    <Sidebar variant="inset">
-      {/* Header */}
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <UploadCloud className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Stream Forge</span>
-                  <span className="truncate text-xs">
-                    {isCreator ? "Creator" : "Editor"} Dashboard
-                  </span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev); // Toggle sidebar visibility
+  };
 
-      {/* Dropdown for selecting users */}
-      {(isCreator || isEditor) && (
-        <div className="px-2 pb-2 ">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted text-sm">
-                <img
-                  src={selectedUserAvatar}
-                  className="w-6 h-6 rounded-full"
-                  alt={selectedUserName}
-                />
-                <span className="truncate">{selectedUserName}</span>
-                <ChevronDown className="ml-auto w-4 h-4 opacity-50" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              className="w-[200px] bg-secondary "
-            >
-              {editorLoading || creatorLoading ? (
-                <DropdownMenuItem disabled>Loading users...</DropdownMenuItem>
-              ) : editorError || creatorError ? (
-                <DropdownMenuItem disabled>
-                  Error loading users
-                </DropdownMenuItem>
-              ) : (
-                selectableUsers.map((user) => (
-                  <DropdownMenuItem
-                    key={user.id || user.email || user.name}
-                    onSelect={() => setSelectedUser(user)} // Store the full user object
-                    className="flex items-center gap-2"
-                  >
-                    <img
-                      src={
-                        user.avatar || `https://i.pravatar.cc/150?u=${user.id}`
-                      }
-                      className="w-5 h-5 rounded-full"
-                      alt={user.name}
-                    />
-                    <span>{user.name}</span>
-                  </DropdownMenuItem>
-                ))
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+  return (
+    <div className="relative">
+      {/* Hamburger Menu */}
+      <button
+        onClick={toggleSidebar}
+        className="absolute top-4 left-4 md:hidden z-30"
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Overlay for backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-base-100 z-10 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
-      {/* Main Navigation */}
-      <SidebarContent>
-        <NavMain items={navMain} onSelect={handleSectionChange} />
-        <NavProjects projects={sidebarData.projects} />
-        <NavSecondary items={sidebarData.navSecondary} className="mt-auto" />
-      </SidebarContent>
+      {/* Sidebar */}
+      <Sidebar
+        variant="inset"
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        className={`
+    transition-all duration-300 z-20
+    fixed top-0 bottom-0 left-0 w-64
+    transform md:relative md:translate-x-0
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+    md:block
+  `}
+      >
+        {/* Header with Close Button */}
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <a href="#">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <UploadCloud className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">Stream Forge</span>
+                    <span className="truncate text-xs">
+                      {isCreator ? "Creator" : "Editor"} Dashboard
+                    </span>
+                  </div>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                size="lg"
+                onClick={() => setSidebarOpen(false)} // Close button
+              >
+                <X className="text-white" size={24} />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-      {/* Footer */}
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
-    </Sidebar>
+        {/* Dropdown for selecting users */}
+        {(isCreator || isEditor) && (
+          <div className="px-2 pb-2 ">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted text-sm">
+                  <img
+                    src={selectedUserAvatar}
+                    className="w-6 h-6 rounded-full"
+                    alt={selectedUserName}
+                  />
+                  <span className="truncate">{selectedUserName}</span>
+                  <ChevronDown className="ml-auto w-4 h-4 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-[200px] bg-secondary "
+              >
+                {editorLoading || creatorLoading ? (
+                  <DropdownMenuItem disabled>Loading users...</DropdownMenuItem>
+                ) : editorError || creatorError ? (
+                  <DropdownMenuItem disabled>
+                    Error loading users
+                  </DropdownMenuItem>
+                ) : (
+                  selectableUsers.map((user) => (
+                    <DropdownMenuItem
+                      key={user.id || user.email || user.name}
+                      onSelect={() => setSelectedUser(user)} // Store the full user object
+                      className="flex items-center gap-2"
+                    >
+                      <img
+                        src={
+                          user.avatar ||
+                          `https://i.pravatar.cc/150?u=${user.id}`
+                        }
+                        className="w-5 h-5 rounded-full"
+                        alt={user.name}
+                      />
+                      <span>{user.name}</span>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {/* Main Navigation */}
+        <SidebarContent>
+          <NavMain items={navMain} onSelect={handleSectionChange} />
+          <NavProjects projects={sidebarData.projects} />
+          <NavSecondary items={sidebarData.navSecondary} className="mt-auto" />
+        </SidebarContent>
+
+        {/* Footer */}
+        <SidebarFooter>
+          <NavUser user={user} />
+        </SidebarFooter>
+      </Sidebar>
+    </div>
   );
 }

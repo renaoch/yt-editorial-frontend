@@ -1,9 +1,3 @@
-// src/apis/user.js
-
-// Check if the user is authenticated
-// src/apis/user.js
-// React example (if using React Router v6)
-
 export const checkUser = async () => {
   try {
     const response = await fetch("https://yt-editorial-backend.onrender.com/api/checkUser", {
@@ -24,15 +18,18 @@ export const checkUser = async () => {
 // Log the user in via Google OAuth
 export const loginWithGoogle = (role) => {
   const redirectURL = `https://yt-editorial-backend.onrender.com/auth/google/${role}`;
-  console.log("role: ",role)
+  console.log("role: ", role);
   window.location.href = redirectURL;
 };
 
 // Log the user out
 export const logoutUser = async () => {
   try {
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (!confirmed) return;
+    window.location.href = "/"; 
     // Sending a GET request to logout (or POST, depending on your backend logic)
-    const response = await fetch("https://yt-editorial-backend.onrender.com/auth/logout", {
+    const response = await fetch("https://yt-editorial-backend.onrender.com/logout", {
       method: "POST", // You can change to GET if it's more appropriate in your backend
       credentials: "include", // ensures cookies/session are sent
     });
@@ -40,7 +37,7 @@ export const logoutUser = async () => {
     if (!response.ok) throw new Error("Logout failed");
 
     // Optionally, you can perform a redirect after logout (for example, to the login page)
-    window.location.href = "BASE_URL/login"; // Adjust the redirect URL as needed
+    window.location.href = "/"; // Adjust the redirect URL as needed
 
     return await response.json(); // Server may return a message like { success: true }
   } catch (error) {

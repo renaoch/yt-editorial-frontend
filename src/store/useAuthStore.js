@@ -10,8 +10,8 @@ export const useAuthStore = create((set, get) => ({
   hasCheckedAuth: false,
 
   checkUserStatus: async () => {
-    // If already checking, don't trigger again
-    if (get().isLoading) return;
+    const { isLoading } = get();
+    if (isLoading) return;
 
     set({ isLoading: true });
 
@@ -23,11 +23,13 @@ export const useAuthStore = create((set, get) => ({
         set({ user: null, role: null, error: null });
       }
     } catch (err) {
-      set({ error: err.message || "Failed to check user status" });
-      // Retry the check if error occurs
-      setTimeout(() => get().checkUserStatus(), 2000); // Retry after 2 seconds
+      console.error("checkUserStatus error:", err);
+      set({
+        error: err.message || "Failed to check user status",
+        user: null,
+        role: null,
+      });
     } finally {
-      // If request completes (success or failure), set loading to false
       set({ isLoading: false, hasCheckedAuth: true });
     }
   },

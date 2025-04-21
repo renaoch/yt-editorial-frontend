@@ -195,8 +195,8 @@ const ChatApp = () => {
       </motion.div>
 
       {/* Chat UI */}
-      <AnimatePresence>
-        {activeUser && (
+      <AnimatePresence mode="wait">
+        {activeUser ? (
           <motion.section
             key="chat"
             initial={{ opacity: 0, y: 20 }}
@@ -249,7 +249,6 @@ const ChatApp = () => {
                         {isMe ? "You" : msg.sender_name}
                       </div>
                       <div>{msg.message}</div>
-                      {console.log(msg.created_at)}
                       <div className="text-[10px] text-right mt-1 opacity-70">
                         {new Date(msg.created_at).toLocaleTimeString([], {
                           hour: "2-digit",
@@ -281,6 +280,18 @@ const ChatApp = () => {
               </button>
             </div>
           </motion.section>
+        ) : (
+          <motion.div
+            key="fallback"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center flex-1 text-center text-base-content p-10"
+          >
+            {users.length === 0
+              ? "Please assign someone to chat with."
+              : "Please select a chat to continue."}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

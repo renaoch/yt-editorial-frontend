@@ -117,7 +117,15 @@ export function ExpandableCardDemo({ cards }) {
                     )}
                   </div>
 
-                  {!active.assigned && (
+                  {active.assigned ? (
+                    <motion.button
+                      layoutId={`button-${active.name}-${id}`}
+                      className="px-4 py-3 text-sm rounded-full font-bold bg-gray-400 text-white self-end cursor-not-allowed"
+                      disabled
+                    >
+                      Assigned!
+                    </motion.button>
+                  ) : (
                     <motion.button
                       layoutId={`button-${active.name}-${id}`}
                       className="px-4 py-3 text-sm rounded-full font-bold bg-green-500 text-white self-end"

@@ -70,7 +70,13 @@ export default function ProjectsPage() {
           projects={filteredProjects} // Pass the filtered projects here
         />
 
-        <CreateProjectDialog open={showCreate} onOpenChange={setShowCreate} />
+        <CreateProjectDialog
+          open={showCreate}
+          onOpenChange={setShowCreate}
+          onProjectCreated={(newProject) => {
+            setProjects((prev) => [newProject, ...prev]);
+          }}
+        />
       </div>
 
       {/* 👇 Drawer OUTSIDE of layout container */}

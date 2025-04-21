@@ -6,8 +6,8 @@ import {
 } from "../../../components/ui/tabs";
 import { Textarea } from "../../../components/ui/textarea";
 import { Button } from "../../../components/ui/button";
-import { useState } from "react";
-import { uploadVideo } from "../../../lib/api/Video";
+import { useState, useEffect } from "react";
+import { uploadVideo, fetchVideoVersions } from "../../../lib/api/Video";
 import { toast } from "sonner";
 
 const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
@@ -17,6 +17,27 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
   const [tags, setTags] = useState("");
   const [comments, setComments] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [videoVersions, setVideoVersions] = useState([]); 
+
+
+  useEffect(() => {
+    const fetchVersions = async () => {
+      try {
+        const taskId = selectedProject?._id;
+        if (taskId) {
+          const versions = await fetchVideoVersions(taskId);
+          setVideoVersions(versions);
+        }
+      } catch (error) {
+        console.error("Error fetching video versions:", error);
+        toast.error("Failed to fetch video versions");
+      }
+    };
+
+    if (selectedProject?._id) {
+      fetchVersions();
+    }
+  }, [selectedProject]); 
 
   const handleUpload = async () => {
     if (!videoFile || !title || !description) {
@@ -27,7 +48,7 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
     try {
       setUploading(true);
 
-      const taskId = selectedProject?._id; // Assuming task_id is available from the project
+      const taskId = selectedProject?._id;
 
       const response = await uploadVideo({
         file: videoFile,
@@ -47,10 +68,14 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
         },
       });
 
-      toast.success("Success");
+      toast.success("Video uploaded successfully!");
       console.log("Server response:", response);
+
+      // After upload, fetch the updated versions
+      const updatedVersions = await fetchVideoVersions(taskId);
+      setVideoVersions(updatedVersions);
     } catch (err) {
-      toast.success("Success");
+      toast.error("Video upload failed");
     } finally {
       setUploading(false);
     }
@@ -58,11 +83,11 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
 
   return (
     <Tabs
-      className=" flex flex-col"
+      className="flex flex-col"
       value={selectedTab}
       onValueChange={setSelectedTab}
     >
-      <TabsList className="flex space-x-4 border-b  pb-3">
+      <TabsList className="flex space-x-4 border-b pb-3">
         <TabsTrigger
           value="overview"
           className="text-sm font-semibold py-2 px-4 rounded-md hover:bg-secondary-200 transition-colors"
@@ -86,20 +111,20 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
       {/* Overview */}
       <TabsContent
         value="overview"
-        className="flex-1 overflow-y-auto p-6  rounded-lg shadow-md"
+        className="flex-1 overflow-y-auto p-6 rounded-lg shadow-md"
       >
         <div className="space-y-4">
           <div className="flex items-start gap-4">
-            <span className="font-medium ">Deadline:</span>
-            <p className=" ">{selectedProject.deadline}</p>
+            <span className="font-medium">Deadline:</span>
+            <p>{selectedProject.deadline}</p>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-medium ">Assigned By:</span>
-            <p className="">{selectedProject.creator?.name}</p>
+            <span className="font-medium">Assigned By:</span>
+            <p>{selectedProject.creator?.name}</p>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-medium ">Tags:</span>
-            <p className="">{selectedProject.tags?.join(", ") || "No tags"}</p>
+            <span className="font-medium">Tags:</span>
+            <p>{selectedProject.tags?.join(", ") || "No tags"}</p>
           </div>
         </div>
       </TabsContent>
@@ -107,7 +132,7 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
       {/* Upload */}
       <TabsContent
         value="upload"
-        className="flex-1 overflow-y-auto p-6  rounded-lg shadow-md"
+        className="flex-1 overflow-y-auto p-6 rounded-lg shadow-md"
       >
         <div className="space-y-4">
           <div>
@@ -177,28 +202,26 @@ const ProjectTabs = ({ selectedProject, selectedTab, setSelectedTab }) => {
       {/* Versions */}
       <TabsContent
         value="versions"
-        className="flex-1 overflow-y-auto p-6  rounded-lg shadow-md"
+        className="flex-1 overflow-y-auto p-6 rounded-lg shadow-md"
       >
         <div className="space-y-4">
-          {selectedProject.videoVersions?.length > 0 ? (
-            selectedProject.videoVersions
-              .slice()
-              .reverse()
-              .map((version, index) => (
-                <div key={index} className="border rounded-lg p-4  shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Version {index + 1}
-                      </p>
-                      <p className="text-sm  ">
-                        Uploaded on:{" "}
-                        {new Date(version.uploadedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
+          {console.log("vid", videoVersions)}
+          {videoVersions.length > 0 ? (
+            videoVersions.map((version) => (
+              <div
+                key={version._id}
+                className="border rounded-lg p-4 shadow-sm space-y-2"
+              >
+                <p className="font-medium">Version {version.version_number}</p>
+                <video
+                  controls
+                  className="w-full h-auto rounded-md border"
+                  src={version.video_url}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ))
           ) : (
             <p className="text-gray-500">No previous versions available.</p>
           )}

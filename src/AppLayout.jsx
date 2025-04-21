@@ -17,19 +17,19 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const { checkUserStatus, user, isLoading, hasCheckedAuth } = useAuthStore();
 
-  // Check user auth status when AppLayout loads
+  // Check user status on initial load
   useEffect(() => {
     checkUserStatus();
   }, [checkUserStatus]);
 
-  // If not authenticated, redirect to /auth
+  // Redirect to /auth if not logged in
   useEffect(() => {
     if (hasCheckedAuth && !user) {
       navigate("/auth");
     }
   }, [hasCheckedAuth, user, navigate]);
-console.log("hasCheckedAuth ",hasCheckedAuth ,"user",user,"isLoading",isLoading)
-  // Show loading spinner while checking auth
+
+  // Show spinner while loading
   if (isLoading || !hasCheckedAuth) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -38,7 +38,7 @@ console.log("hasCheckedAuth ",hasCheckedAuth ,"user",user,"isLoading",isLoading)
     );
   }
 
-  // Handle sidebar selection
+  // Sidebar item handler
   const handleSelect = (section) => {
     switch (section) {
       case "notifications":
