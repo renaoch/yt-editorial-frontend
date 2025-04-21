@@ -27,7 +27,7 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
   const [name, setName] = useState(""); // project name
   const [deadline, setDeadline] = useState(null); // due date
   const [loading, setLoading] = useState(false); // for spinner
-
+  const [popoverOpen, setPopoverOpen] = useState(false); 
   // Get selected user (editor)
   const { selectedUser } = useSelectedUserStore.getState();
 
@@ -36,7 +36,11 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
       toast.error("Project name is required");
       return;
     }
-  
+  const handleDateSelect = (date) => {
+    setDeadline(date);
+    setPopoverOpen(false); 
+  };
+
     if (!selectedUser) {
       toast.error("Please select an editor");
       return;
@@ -51,7 +55,7 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
         deadline,
       });
   
-      toast.success("✅ Project created!");
+      toast.success(" Project created!");
       onProjectCreated?.(newTask); 
       onOpenChange(false);
       setName("");
@@ -100,6 +104,7 @@ export default function CreateProjectDialog({ open, onOpenChange, onProjectCreat
                   mode="single"
                   selected={deadline}
                   onSelect={setDeadline}
+                  onSelect={handleDateSelect} 
                   initialFocus
                 />
               </PopoverContent>
