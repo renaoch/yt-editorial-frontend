@@ -45,20 +45,13 @@ export const logoutUser = async () => {
     return null;
   }
 };
-
 // Fetch all editors
 export const getAllEditors = async () => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-
   try {
     const response = await fetch("https://yt-editorial-backend.onrender.com/user/editors", {
       method: "GET",
       credentials: "include", // important for sessions
-      signal: controller.signal,
     });
-
-    clearTimeout(timeout);
 
     if (!response.ok) {
       throw new Error(`Cannot fetch editors: ${response.statusText}`);
@@ -70,6 +63,7 @@ export const getAllEditors = async () => {
     return null;
   }
 };
+
 
 // send a req an editor to the creator
 export const assignEditor = async (editor_id) => {
